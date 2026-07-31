@@ -1,114 +1,129 @@
 "use client";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { userRegisterSchema } from "@/validation/auth";
+
+type RegisterInput = z.infer<typeof userRegisterSchema>;
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const [globalMessage, setGlobalMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(userRegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  async function onSubmit(data: RegisterInput) {
+    setIsLoading(true);
+    setGlobalMessage("");
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result.errors) {
+          Object.keys(result.errors).forEach((key) => {
+            const message = result.errors[key]?.[0];
+            if (message) {
+              setError(key as keyof RegisterInput, {
+                type: "server",
+                message,
+              });
+            }
+          });
+        } else if (result.message) {
+          setGlobalMessage(result.message);
+        }
+        return;
+      }
+
+      // Berhasil registrasi -> redirect ke halaman login
+      router.push("/login");
+    } catch {
+      setGlobalMessage("Gagal terhubung ke server.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-xl border bg-white p-6 shadow-sm">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Register
-        </h1>
+    <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow">
+      <h1 className="text-2xl font-bold mb-6">Register</h1>
 
-        {/* Form */}
-        <form className="space-y-4">
-          {/* Register: Name Field */}
-          <div>
-            <Label
-              htmlFor="name"
-              className="mb-2 flex items-center text-sm font-medium text-gray-700"
-            >
-              Full Name
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full"
-            />
-          </div>
+      {globalMessage && (
+        <p className="text-red-500 mb-4 text-center text-sm">{globalMessage}</p>
+      )}
 
-          {/* Email Field */}
-          <div>
-            <Label
-              htmlFor="email"
-              className="mb-2 flex items-center text-sm font-medium text-gray-700"
-            >
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full"
-            />
-          </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <Label htmlFor="name">Nama</Label>
+          <Input id="name" type="text" {...register("name")} />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
+        </div>
 
-          {/* Password Field */}
-          <div>
-            <Label
-              htmlFor="password"
-              className="mb-2 flex items-center text-sm font-medium text-gray-700"
-            >
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full"
-            />
-          </div>
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" {...register("email")} />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
 
-          {/* Register: Confirm Password Field */}
-          <div>
-            <Label
-              htmlFor="confirm-password"
-              className="mb-2 flex items-center text-sm font-medium text-gray-700"
-            >
-              Confirm Password
-            </Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full"
-            />
-          </div>
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" {...register("password")} />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-          {/* Error Message */}
-          {error && <p className="text-sm text-red-500">{error}</p>}
+        <div>
+          <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
 
-          {/* Submit Button */}
-          <Button type="submit" className="w-full">
-            Login
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-gray-600">
-          Already have an account?&ensp;
-          <Link href="/login" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </p>
-      </div>
+        <Button type="submit" disabled={isLoading} className="w-full">
+          {isLoading ? "Loading..." : "Daftar"}
+        </Button>
+      </form>
     </div>
   );
 }
