@@ -10,6 +10,13 @@ export interface UserRow {
   createdAt?: string;
 }
 
+export interface SessionRow {
+  id: string;
+  userId: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 const db = new Database(path.join(process.cwd(), "database", "database.db"));
 
 db.pragma("foreign_keys = ON");

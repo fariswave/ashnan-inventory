@@ -49,10 +49,37 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({
+    const sessionId = randomUUID();
+
+    const durationInDays = 30;
+    const sessionExpiresAt = new Date();
+    sessionExpiresAt.setDate(sessionExpiresAt.getDate() + durationInDays);
+
+    const sessionExpiresAtIso = sessionExpiresAt.toISOString();
+
+    const insertSessionStmt = db.prepare(
+      "INSERT INTO sessions (id, userId, expiresAt) VALUES (?, ?, ?)",
+    );
+    insertSessionStmt.run(sessionId, user.id, sessionExpiresAtIso);
+
+    const response = NextResponse.json({
       success: true,
       message: "Login berhasil!",
     });
+
+    const maxAgeInSeconds = durationInDays * 24 * 60 * 60;
+
+    response.cookies.set({
+      name: "session_id",
+      value: sessionId,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: maxAgeInSeconds,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Database Error:", error);
     return NextResponse.json(
