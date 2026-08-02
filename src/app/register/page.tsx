@@ -16,11 +16,13 @@ export default function RegisterPage() {
   const router = useRouter();
   const [globalMessage, setGlobalMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(userRegisterSchema),
@@ -35,6 +37,8 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterInput) {
     setIsLoading(true);
     setGlobalMessage("");
+    setIsSuccess(false);
+    clearErrors();
 
     try {
       const response = await fetch("/api/register", {
@@ -62,8 +66,13 @@ export default function RegisterPage() {
         return;
       }
 
+      setIsSuccess(true);
+      setGlobalMessage(result.message || "Registrasi berhasil! Mengalihkan...");
+
       // Berhasil registrasi -> redirect ke halaman login
-      router.push("/login");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
     } catch {
       setGlobalMessage("Gagal terhubung ke server.");
     } finally {
@@ -76,7 +85,13 @@ export default function RegisterPage() {
       <h1 className="text-2xl font-bold mb-6">Register</h1>
 
       {globalMessage && (
-        <p className="text-red-500 mb-4 text-center text-sm">{globalMessage}</p>
+        <p
+          className={`mb-4 text-center text-sm font-medium ${
+            isSuccess ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {globalMessage}
+        </p>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -120,8 +135,16 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Loading..." : "Daftar"}
+        <Button
+          type="submit"
+          disabled={isLoading || isSuccess}
+          className="w-full"
+        >
+          {isSuccess
+            ? "Berhasil! Mengalihkan..."
+            : isLoading
+              ? "Loading..."
+              : "Daftar"}
         </Button>
       </form>
     </div>
