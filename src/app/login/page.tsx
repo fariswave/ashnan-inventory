@@ -66,6 +66,7 @@ export default function LoginPage() {
 
       setIsSuccess(true);
       setGlobalMessage(result.message || "Login Berhasil!");
+      router.push("/dashboard");
     } catch {
       setGlobalMessage("Gagal terhubung ke server.");
     } finally {

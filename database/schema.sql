@@ -40,3 +40,8 @@ CREATE TABLE IF NOT EXISTS sessions (
   FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
+ALTER TABLE products 
+RENAME COLUMN emoji TO icon;
+
+
+
