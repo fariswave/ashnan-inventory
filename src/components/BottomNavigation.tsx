@@ -2,8 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-import React from "react";
-
 export interface NavItem {
   id: string;
   icon: string;

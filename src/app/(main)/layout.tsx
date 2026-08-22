@@ -2,9 +2,8 @@ import React from "react";
 import { Header } from "@/components/Header";
 import { BottomNavigation, NavItem } from "@/components/BottomNavigation";
 
-interface DashboardLayoutProps {
+interface MainLayoutProps {
   children: React.ReactNode;
-  activeNavId?: string;
   navItems?: NavItem[];
 }
 
@@ -15,11 +14,10 @@ const defaultNavItems: NavItem[] = [
   { id: "settings", icon: "⚙️", label: "Settings", path: "/settings" },
 ];
 
-export default function DashboardLayout({
+export default function MainLayout({
   children,
-  activeNavId = "dashboard",
   navItems = defaultNavItems,
-}: DashboardLayoutProps) {
+}: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/80 to-orange-50/40">
       <Header />
