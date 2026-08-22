@@ -3,11 +3,11 @@ import path from "node:path";
 
 // Di dalam src/lib/db.ts
 export interface UserRow {
-  id?: number;
+  id: string;
   name: string;
   email: string;
   password: string;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface SessionRow {
@@ -15,6 +15,15 @@ export interface SessionRow {
   userId: string;
   expiresAt: string;
   createdAt: string;
+}
+
+export interface ProductRow {
+  id: string;
+  name: string;
+  unit: string;
+  icon?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const db = new Database(path.join(process.cwd(), "database", "database.db"));
