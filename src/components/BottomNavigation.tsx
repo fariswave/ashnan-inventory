@@ -19,7 +19,7 @@ export function BottomNavigation({ items }: BottomNavigationProps) {
   const router = useRouter();
   const pathName = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-amber-50 to-amber-50/95 backdrop-blur-sm border-t border-amber-100/40 px-4 py-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-linear-to-t from-amber-50 to-amber-50/95 backdrop-blur-sm border-t border-amber-100/40 px-4 py-2">
       <div className="flex items-center justify-around">
         {items.map((item) => {
           // Tentukan status aktif berdasarkan URL saat ini
