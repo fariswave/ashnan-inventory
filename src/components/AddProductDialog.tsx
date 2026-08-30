@@ -27,11 +27,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { addProductSchema } from "@/validation/addProducts";
+import { useRouter } from "next/navigation";
 
 type AddProductInput = z.infer<typeof addProductSchema>;
 
 export function AddProductDialog() {
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -46,8 +48,12 @@ export function AddProductDialog() {
     },
   });
 
+  const router = useRouter();
+
   const onSubmit: SubmitHandler<AddProductInput> = async (data) => {
     try {
+      setError("");
+
       const response = await fetch("/api/products", {
         method: "POST",
         headers: {
@@ -57,14 +63,16 @@ export function AddProductDialog() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add product");
+        const result = await response.json();
+        throw new Error(result.error || "Failed to add product");
       }
 
       // Submit berhasil
       reset();
       setIsOpen(false);
+      router.refresh();
     } catch (error) {
-      console.error(error);
+      setError(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
@@ -121,6 +129,8 @@ export function AddProductDialog() {
               {errors.unit && <FieldError>{errors.unit.message}</FieldError>}
             </Field>
           </FieldGroup>
+
+          {error && <FieldError>{error}</FieldError>}
 
           <DialogFooter>
             <DialogClose
