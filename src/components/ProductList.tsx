@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ProductRow } from "@/lib/db";
 import {
   Accordion,
@@ -8,12 +9,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Pencil, Package, Trash2 } from "lucide-react";
+import { EditProductDialog } from "./EditProductDialog";
 
 interface ProductListProps {
   products: ProductRow[];
 }
 
 export function ProductList({ products }: ProductListProps) {
+  const [editProduct, setEditProduct] = useState<ProductRow | null>(null);
+
   return (
     <div className="p-4">
       <h1 className="text-lg font-semibold mb-4">Products</h1>
@@ -43,7 +47,10 @@ export function ProductList({ products }: ProductListProps) {
 
               <AccordionContent className="px-4 pb-4 pt-2">
                 <div className="flex flex-wrap gap-2 border-t pt-3">
-                  <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors">
+                  <button
+                    onClick={() => setEditProduct(p)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                  >
                     <Pencil className="h-4 w-4" />
                     Edit
                   </button>
@@ -63,6 +70,13 @@ export function ProductList({ products }: ProductListProps) {
           </div>
         ))}
       </Accordion>
+      {/* Render EditProductDialog jika editProduct ada */}
+      {editProduct && (
+        <EditProductDialog
+          product={editProduct}
+          onClose={() => setEditProduct(null)}
+        />
+      )}
     </div>
   );
 }
