@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          errors: { name: ["Product is already registered!"] },
+          message: "Product is already registered!", // Ganti dari `errors` ke `message` },
         },
         { status: 400 },
       );

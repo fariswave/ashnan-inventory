@@ -20,7 +20,7 @@ export interface SessionRow {
 export interface ProductRow {
   id: string;
   name: string;
-  unit: string;
+  unit: "PCS" | "G" | "KG" | "ML" | "L";
   icon?: string;
   createdAt: string;
   updatedAt: string;

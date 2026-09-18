@@ -1,8 +1,8 @@
 import { requireAuth } from "@/lib/auth";
-import ProductCard from "@/components/ProductCard";
 import { ProductRow } from "@/lib/db";
 import db from "@/lib/db";
 import { ProductList } from "@/components/ProductList";
+import { AddProductDialog } from "@/components/AddProductDialog";
 
 export default async function ProductsPage() {
   const user = await requireAuth();
@@ -20,6 +20,7 @@ export default async function ProductsPage() {
 
   return (
     <div className="p-4">
+      <AddProductDialog />
       <ProductList products={products} />
     </div>
   );

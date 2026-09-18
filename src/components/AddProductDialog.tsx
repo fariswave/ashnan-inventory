@@ -28,10 +28,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { addProductSchema } from "@/validation/addProducts";
 import { useRouter } from "next/navigation";
+import { ProductRow } from "@/lib/db";
+
+type AddProductDialogProps = { product?: ProductRow };
 
 type AddProductInput = z.infer<typeof addProductSchema>;
 
-export function AddProductDialog() {
+export function AddProductDialog({ product }: AddProductDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,7 +47,8 @@ export function AddProductDialog() {
   } = useForm<AddProductInput>({
     resolver: zodResolver(addProductSchema),
     defaultValues: {
-      name: "",
+      name: product ? product.name : "",
+      unit: product ? product.unit : undefined,
     },
   });
 
@@ -64,7 +68,7 @@ export function AddProductDialog() {
 
       if (!response.ok) {
         const result = await response.json();
-        throw new Error(result.error || "Failed to add product");
+        throw new Error(result.message || "Failed to add product");
       }
 
       // Submit berhasil
