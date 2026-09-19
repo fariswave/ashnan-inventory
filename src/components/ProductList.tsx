@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { Pencil, Package, Trash2 } from "lucide-react";
 import { EditProductDialog } from "./EditProductDialog";
+import { DeleteProductDialog } from "./DeleteProductDialog";
 
 interface ProductListProps {
   products: ProductRow[];
@@ -17,6 +18,7 @@ interface ProductListProps {
 
 export function ProductList({ products }: ProductListProps) {
   const [editProduct, setEditProduct] = useState<ProductRow | null>(null);
+  const [deleteProduct, setDeleteProduct] = useState<ProductRow | null>(null);
 
   return (
     <div className="p-4">
@@ -60,7 +62,10 @@ export function ProductList({ products }: ProductListProps) {
                     View Batches
                   </button>
 
-                  <button className="ml-auto flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors">
+                  <button
+                    onClick={() => setDeleteProduct(p)}
+                    className="ml-auto flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                  >
                     <Trash2 className="h-4 w-4" />
                     Delete
                   </button>
@@ -75,6 +80,12 @@ export function ProductList({ products }: ProductListProps) {
         <EditProductDialog
           product={editProduct}
           onClose={() => setEditProduct(null)}
+        />
+      )}
+      {deleteProduct && (
+        <DeleteProductDialog
+          product={deleteProduct}
+          onClose={() => setDeleteProduct(null)}
         />
       )}
     </div>

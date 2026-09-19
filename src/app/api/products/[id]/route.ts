@@ -5,6 +5,46 @@ import { addProductSchema } from "@/validation/addProducts";
 import { requireAuth } from "@/lib/auth";
 import { ProductRow } from "@/lib/db";
 
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const user = await requireAuth();
+    const { id } = await params;
+
+    // Cek apakah product punya user yang sama
+    const checkProductStmt = db.prepare<[string, string], ProductRow>(
+      "SELECT id FROM products WHERE id = ? AND userId = ?",
+    );
+    const existingProduct = checkProductStmt.get(id, user.id);
+
+    if (!existingProduct) {
+      return NextResponse.json(
+        { success: false, message: "Product not found or unauthorized" },
+        { status: 404 },
+      );
+    }
+
+    // Update product
+    const deleteProductStmt = db.prepare(
+      "DELETE FROM products WHERE id = ? AND userId = ?",
+    );
+    deleteProductStmt.run(id, user.id);
+
+    return NextResponse.json({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.error("Database Error:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
